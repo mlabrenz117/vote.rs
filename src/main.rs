@@ -1,5 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #![feature(custom_attribute, never_type)]
+#![feature(vec_remove_item)]
 
 #[macro_use]
 extern crate rocket;
@@ -35,14 +36,14 @@ struct Context {
 impl Context {
     pub fn new(conn: &DbConn) -> Context {
         Context {
-            winner: Vote::run_election(conn).into_iter().collect(),
+            winner: Vote::run_election(conn),
             items: Vec::new(), // not used if not logged in
         }
     }
 
     pub fn for_user(user: Auth, conn: &DbConn) -> Context {
         Context {
-            winner: Vote::run_election(conn).into_iter().collect(),
+            winner: Vote::run_election(conn),
             items: Item::for_user(user.0, conn),
         }
     }

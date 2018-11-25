@@ -105,7 +105,9 @@ impl Item {
 }
 
 impl Vote {
-    pub fn run_election(conn: &SqliteConnection) -> Option<Item> {
+    pub fn run_election(conn: &SqliteConnection) -> Vec<Item> {
+        let mut results: Vec<Item> = Vec::new();
+
         let votes = all_votes
             .inner_join(self::schema::items::table)
             .filter(item_done.eq(false))
@@ -115,22 +117,32 @@ impl Vote {
             .unwrap();
 
         // the extra collections here are sad.
-        let votes: Vec<Vec<_>> = votes
+        let mut votes: Vec<Vec<_>> = votes
             .into_iter()
             .group_by(|v| v.user_id)
             .into_iter()
             .map(|(_, ballot)| ballot.into_iter().map(|v| v.item_id).collect())
             .collect();
 
-        match rcir::run_election(&votes).ok()? {
-            rcir::ElectionResult::Winner(&iid) => {
-                Some(all_items.find(iid).get_result::<Item>(conn).unwrap())
+        for _ in 0..10 {
+            for r in results.iter() {
+                for ballot in votes.iter_mut() {
+                    ballot.remove_item(&r.id);
+                }
             }
-            rcir::ElectionResult::Tie(iids) => {
-                // TODO: maybe pick the oldest one?
-                Some(all_items.find(*iids[0]).get_result::<Item>(conn).unwrap())
+
+            match rcir::run_election(&votes) {
+                Err(_) => break,
+                Ok(rcir::ElectionResult::Winner(&iid)) => {
+                    results.push(all_items.find(iid).get_result::<Item>(conn).unwrap());
+                }
+                Ok(rcir::ElectionResult::Tie(iids)) => {
+                    // TODO: maybe pick the oldest one?
+                    results.push(all_items.find(*iids[0]).get_result::<Item>(conn).unwrap());
+                }
             }
         }
+        results
     }
 
     pub fn save_ballot(uid: i32, ballot: Ballot, conn: &SqliteConnection) {

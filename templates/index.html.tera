@@ -1,18 +1,17 @@
 {% extends "base" %}
 {% block content %}
-{% for winner in winner %}
 <div class="card mt-3">
   <div class="card-header">
-    Next stream unless you vote!
+    Top 10 Movies Currently!
   </div>
+  {% for winner in winner %}
   <div class="card-body">
     <h5 class="card-title">{{ winner.title }}</h5>
-    <p class="card-text">{{ winner.body }}</p>
   </div>
+  {% endfor %}
 </div>
-{% endfor %}
 <div class="alert alert-warning mt-3" role="alert">
-  Don't register multiple users just because you can. It's an asshat thing to do.
+  Don't register multiple users just because you can. I'll know if you do :).
 </div>
 <form action="login" method="post" class="mt-3">
     <div class="row">

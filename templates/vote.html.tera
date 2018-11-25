@@ -1,19 +1,18 @@
 {% extends "base" %}
 {% block content %}
-{% for winner in winner %}
 <div class="card mt-3">
   <div class="card-header">
-    Next stream unless you vote!
+    Top 10 Movies Currently!
   </div>
+  {% for winner in winner %}
   <div class="card-body">
     <h5 class="card-title">{{ winner.title }}</h5>
-    <p class="card-text">{{ winner.body }}</p>
   </div>
+  {% endfor %}
 </div>
-{% endfor %}
 <div class="alert alert-primary mt-3" role="alert">
-  Drag and drop the candidates below into your order of preference.
-  Candidates under the gray bar are ignored.
+  Drag and drop the movies below into your order of preference.
+  Movies under the gray bar are ignored.
   You can also drag the gray bar!
 </div>
 <style>
@@ -34,7 +33,6 @@
     {% if not item.0.done %}
     <div class="list-group-item list-group-item-action flex-column align-items-start" data-id="{{ item.0.id }}">
         <h5 class="mb-1">{{ item.0.title }}</h5>
-        <p class="mb-1">{{ item.0.body }}</p>
     </div>
     {% endif %}
     {% endif %}
@@ -47,7 +45,6 @@
     {% if not item.0.done %}
     <div class="list-group-item list-group-item-action flex-column align-items-start" data-id="{{ item.0.id }}">
         <h5 class="mb-1">{{ item.0.title }}</h5>
-        <p class="mb-1">{{ item.0.body }}</p>
     </div>
     {% endif %}
     {% endif %}
@@ -78,7 +75,7 @@ var sortable = Sortable.create(document.getElementById('ballot'), {
                 alert(
                     "Your vote couldn't be registered!\n" +
                     "Try refreshing the page, or use a different browser.\n" +
-                    "If the issue persists, please ping @jonhoo.");
+                    "If the issue persists, please ping @mitchl.");
             }
         });
     }
