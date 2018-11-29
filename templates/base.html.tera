@@ -9,6 +9,7 @@
         <title>Rust live-stream voting</title>
         <meta name="description" content="Vote for the next Plex movie uploads">
         <meta name="author" content="Mitch Labrenz">
+        <base href="./vote/"
     </head>
     <body>
         <nav class="navbar navbar-dark bg-primary">

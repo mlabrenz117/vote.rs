@@ -12,6 +12,7 @@ extern crate serde_derive;
 extern crate rocket_contrib;
 extern crate itertools;
 extern crate rcir;
+extern crate rstv;
 
 mod schema;
 
@@ -101,7 +102,7 @@ fn index_head(conn: DbConn) -> Template {
 fn rocket() -> (Rocket, Option<DbConn>) {
     let rocket = rocket::ignite()
         .attach(DbConn::fairing())
-        .mount("/votes", routes![index, index_head, login, votes, vote])
+        .mount("/", routes![index, index_head, login, votes, vote])
         .attach(Template::fairing());
 
     let conn = match cfg!(test) {

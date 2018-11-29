@@ -1,6 +1,7 @@
 use diesel::{self, prelude::*};
 use itertools::Itertools;
 use rcir;
+use rstv;
 
 mod schema {
     table! {
@@ -124,25 +125,37 @@ impl Vote {
             .map(|(_, ballot)| ballot.into_iter().map(|v| v.item_id).collect())
             .collect();
 
-        for _ in 0..10 {
-            for r in results.iter() {
-                for ballot in votes.iter_mut() {
-                    ballot.remove_item(&r.id);
-                }
-            }
+        //for i in 0..6 {
+        //for r in results.iter() {
+        //    for ballot in votes.iter_mut() {
+        //         ballot.remove_item(&r.id);
+        //      }
+        //   }
+        //   println!("Round {}: {:?}", i, votes);
+        let mut election = rstv::STV::new();
+        election.add_ballots(votes);
+        election
+            .run_election(10)
+            .unwrap()
+            .iter()
+            .map(|iid| all_items.find(iid).get_result::<Item>(conn).unwrap())
+            .collect()
 
-            match rcir::run_election(&votes) {
-                Err(_) => break,
-                Ok(rcir::ElectionResult::Winner(&iid)) => {
-                    results.push(all_items.find(iid).get_result::<Item>(conn).unwrap());
-                }
-                Ok(rcir::ElectionResult::Tie(iids)) => {
-                    // TODO: maybe pick the oldest one?
-                    results.push(all_items.find(*iids[0]).get_result::<Item>(conn).unwrap());
-                }
-            }
-        }
-        results
+        //match rcir::run_election(&votes) {
+        //Err(e) => {
+        //   println!("{:?}", e);
+        //  break;
+        //}
+        //O//k(rcir::ElectionResult::Winner(&iid)) => {
+        //  results.push(all_items.find(iid).get_result::<Item>(conn).unwrap());
+        //}
+        //O//k(rcir::ElectionResult::Tie(iids)) => {
+        //  // TODO: maybe pick the oldest one?
+        // results.push(all_items.find(*iids[0]).get_result::<Item>(conn).unwrap());
+        //}
+        //}
+        //}
+        //results
     }
 
     pub fn save_ballot(uid: i32, ballot: Ballot, conn: &SqliteConnection) {
